@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>通知信</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #ffffff;
+      border: 1px solid #dddddd;
+      border-radius: 6px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .header {
+      font-size: 22px;
+      font-weight: bold;
+      color: #333333;
+      margin-bottom: 20px;
+    }
+    .content {
+      font-size: 16px;
+      color: #444444;
+      line-height: 1.6;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #999999;
+      text-align: center;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: #ffffff !important;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">🔔 系統通知提醒</div>
+    <div class="content">
+      <p>您好， <span th:text="${username}">使用者名稱</span></p>
+      <p>您有一筆新的待處理任務，詳情如下：</p>
+      <ul>
+        <li><strong>任務名稱：</strong> 文件審核流程</li>
+        <li><strong>截止日期：</strong> 2025-07-25</li>
+        <li><strong>負責人：</strong> 王小明</li>
+      </ul>
+      <p>請您盡快登入系統處理該任務，以確保流程順利進行。</p>
+      <a class="btn" href="https://your-system-link.com/task/12345">前往任務</a>
+    </div>
+    <div class="footer">
+      本郵件由系統自動發送，請勿直接回覆。<br>
+      &copy; 2025 Your Company, All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
