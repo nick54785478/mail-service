@@ -1,4 +1,4 @@
-package com.example.demo.application.domain.lock.aggregate;
+package com.example.demo.infra.persistence.distlock.entity;
 
 import java.time.Instant;
 

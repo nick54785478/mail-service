@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.application.port.DistributeLockManagerPort;
-import com.example.demo.infra.persistence.DistributedLockRepository;
+import com.example.demo.infra.persistence.distlock.repository.DistributedLockRepository;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

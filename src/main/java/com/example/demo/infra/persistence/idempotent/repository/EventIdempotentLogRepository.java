@@ -1,4 +1,4 @@
-package com.example.demo.infra.persistence;
+package com.example.demo.infra.persistence.idempotent.repository;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.application.domain.idempotent.aggregate.EventIdempotentLog;
-import com.example.demo.application.domain.idempotent.aggregate.EventIdempotentLog.EventIdempotentLogId;
+import com.example.demo.infra.persistence.idempotent.entity.EventIdempotentLog;
+import com.example.demo.infra.persistence.idempotent.entity.EventIdempotentLog.EventIdempotentLogId;
 
 import jakarta.persistence.LockModeType;
 

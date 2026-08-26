@@ -1,4 +1,4 @@
-package com.example.demo.infra.persistence;
+package com.example.demo.infra.persistence.distlock.repository;
 
 import java.time.Instant;
 
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo.application.domain.lock.aggregate.DistributedLock;
+import com.example.demo.infra.persistence.distlock.entity.DistributedLock;
 
 import jakarta.persistence.LockModeType;
 

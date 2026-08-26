@@ -7,10 +7,10 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.application.domain.idempotent.aggregate.EventIdempotentLog;
+import com.example.demo.infra.persistence.idempotent.entity.EventIdempotentLog;
 import com.example.demo.application.port.EventIdempotentHelperPort;
 import com.example.demo.infra.event.shared.event.BaseEvent;
-import com.example.demo.infra.persistence.EventIdempotentLogRepository;
+import com.example.demo.infra.persistence.idempotent.repository.EventIdempotentLogRepository;
 
 import lombok.AllArgsConstructor;
 

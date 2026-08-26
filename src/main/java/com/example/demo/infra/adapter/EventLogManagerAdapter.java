@@ -6,12 +6,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.application.domain.log.aggregate.EventLog;
-import com.example.demo.application.domain.log.command.CreateEventLogCommand;
+import com.example.demo.infra.persistence.eventlog.entity.EventLog;
+import com.example.demo.infra.persistence.eventlog.command.CreateEventLogCommand;
 import com.example.demo.application.port.EventLogManagerPort;
 import com.example.demo.infra.event.codec.EventJsonCodec;
 import com.example.demo.infra.event.shared.event.BaseEvent;
-import com.example.demo.infra.persistence.EventLogRepository;
+import com.example.demo.infra.persistence.eventlog.repository.EventLogRepository;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

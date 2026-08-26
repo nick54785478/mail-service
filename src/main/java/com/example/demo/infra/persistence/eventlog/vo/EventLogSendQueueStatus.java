@@ -1,4 +1,4 @@
-package com.example.demo.application.domain.log.aggregate.vo;
+package com.example.demo.infra.persistence.eventlog.vo;
 
 /**
  * 管理 EventLog 的 Event 狀態

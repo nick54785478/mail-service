@@ -11,12 +11,12 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.application.domain.log.aggregate.EventLog;
-import com.example.demo.application.domain.log.aggregate.vo.EventLogSendQueueStatus;
+import com.example.demo.infra.persistence.eventlog.entity.EventLog;
+import com.example.demo.infra.persistence.eventlog.vo.EventLogSendQueueStatus;
 import com.example.demo.application.port.DistributeLockManagerPort;
 import com.example.demo.application.port.EventPublisherPort;
 import com.example.demo.infra.event.shared.command.PublishEventCommand;
-import com.example.demo.infra.persistence.EventLogRepository;
+import com.example.demo.infra.persistence.eventlog.repository.EventLogRepository;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -91,7 +91,7 @@ public class EventRepublishJob implements Job {
 		}
 
 		try {
-			republish();
+			this.republish();
 		} finally {
 			releaseLockSafely(LOCK_KEY, ownerId);
 		}

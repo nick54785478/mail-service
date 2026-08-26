@@ -31,7 +31,6 @@ public interface EventPublisherPort {
 	 *                </ul>
 	 */
 	void publish(PublishEventCommand command);
-	
-	
+
 	void republish(List<PublishEventCommand> commands);
 }

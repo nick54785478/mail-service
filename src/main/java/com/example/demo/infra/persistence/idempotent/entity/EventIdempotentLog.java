@@ -1,4 +1,4 @@
-package com.example.demo.application.domain.idempotent.aggregate;
+package com.example.demo.infra.persistence.idempotent.entity;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.Date;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.example.demo.application.domain.idempotent.aggregate.EventIdempotentLog.EventIdempotentLogId;
+import com.example.demo.infra.persistence.idempotent.entity.EventIdempotentLog.EventIdempotentLogId;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

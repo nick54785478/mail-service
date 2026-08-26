@@ -49,8 +49,13 @@ public class EventPublishAspect {
 
 		// 嘗試取得 topic 與 payload
 		PublishEventCommand command = (args.length > 0) ? (PublishEventCommand) args[0] : null;
-		String topic = command.getTopic(); // 取得 Topic
-		String eventJson = command != null ? command.getEvent() : "UNKNOWN"; // 取得 Event JSON 資料
+
+		if (command == null) {
+			throw new NullPointerException("Command 為 Null");
+		}
+
+		String topic = command.getTopic() == null? null: command.getTopic(); // 取得 Topic
+		String eventJson = command.getEvent(); // 取得 Event JSON 資料
 
 		BaseEvent event = null;
 

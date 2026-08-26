@@ -1,4 +1,4 @@
-package com.example.demo.application.domain.log.command;
+package com.example.demo.infra.persistence.eventlog.command;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

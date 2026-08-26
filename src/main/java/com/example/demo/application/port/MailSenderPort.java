@@ -28,7 +28,7 @@ public interface MailSenderPort {
 	 * @throws MessagingException 如果發送郵件過程中發生消息異常
 	 * @throws IOException        如果發送郵件過程中發生 IO 異常
 	 */
-	void send(@Email String to, String subject, String text, String attachmentFilename, InputStream file)
+	void send(String to, String subject, String text, String attachmentFilename, InputStream file)
 			throws MessagingException, IOException;
 
 	/**
@@ -37,11 +37,11 @@ public interface MailSenderPort {
 	 * @param to      收件人電子郵件地址
 	 * @param subject 郵件主題
 	 * @param text    郵件內容
-	 * @param map     Map<附件檔案名稱, 附件檔案的輸入流>
+	 * @param attachments     Map<附件檔案名稱, 附件檔案的輸入流>
 	 * @throws MessagingException 如果發送郵件過程中發生消息異常
 	 * @throws IOException        如果發送郵件過程中發生 IO 異常
 	 */
-	void send(@Email String to, String subject, String text, Map<String, InputStream> attachments)
+	void send(String to, String subject, String text, Map<String, InputStream> attachments)
 			throws MessagingException;
 
 	/**
@@ -51,10 +51,10 @@ public interface MailSenderPort {
 	 * @param ccList  多個收件人電子郵件地址清單(以 "," 隔開)
 	 * @param subject 郵件主題
 	 * @param text    郵件內容
-	 * @param map     Map<附件檔案名稱, 附件檔案的輸入流>
+	 * @param attachments     Map<附件檔案名稱, 附件檔案的輸入流>
 	 * @throws MessagingException 如果發送郵件過程中發生消息異常
 	 * @throws IOException        如果發送郵件過程中發生 IO 異常
 	 */
-	void sendAndCc(@Email String to, String ccList, String subject, String text, Map<String, InputStream> attachments)
+	void sendAndCc(String to, String ccList, String subject, String text, Map<String, InputStream> attachments)
 			throws MessagingException;
 }

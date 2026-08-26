@@ -1,4 +1,4 @@
-package com.example.demo.application.domain.log.aggregate;
+package com.example.demo.infra.persistence.eventlog.entity;
 
 import java.util.Date;
 import java.util.Objects;
@@ -6,8 +6,8 @@ import java.util.Objects;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.example.demo.application.domain.log.aggregate.vo.EventLogSendQueueStatus;
-import com.example.demo.application.domain.log.command.CreateEventLogCommand;
+import com.example.demo.infra.persistence.eventlog.vo.EventLogSendQueueStatus;
+import com.example.demo.infra.persistence.eventlog.command.CreateEventLogCommand;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
