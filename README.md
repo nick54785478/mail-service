@@ -120,7 +120,7 @@
 ---
 
 
-** TopicProperties **
+**TopicProperties**
 
 對應設定檔
 
@@ -135,7 +135,7 @@
 
 ---
 
-** EventMessageConfiguration **
+**EventMessageConfiguration**
 
 啟動時：
 
@@ -151,7 +151,7 @@
 	
 ---
 
-** EventTopicResolverPort **
+**EventTopicResolverPort**
 
 
 用途：
@@ -164,7 +164,7 @@
 
 ---
 
-** EventJsonCodec **
+**EventJsonCodec**
 
 負責：
 
@@ -188,7 +188,7 @@ JSON 範例：
 
 ---
 
-** OutboxManagerPort **
+**OutboxManagerPort**
 
 用途：
 
@@ -198,7 +198,7 @@ JSON 範例：
 
 ---
 
-** EventIdempotentHelperPort **
+**EventIdempotentHelperPort**
 
 用途：
 
@@ -208,7 +208,7 @@ JSON 範例：
 
 ---
 
-** Application Service : MailApplicationService **
+**Application Service : MailApplicationService**
 
 用於測試寄信功能
 
@@ -239,23 +239,23 @@ JSON 範例：
 
 **職責**
 
-* 每分鐘執行一次
+* 預設每 5 秒執行一次 (0/5 * * * * ?)
 
 * 撈取：
 
->* status = INITIAL
+> * status = INITIAL
 
->* 發生時間超過 5 分鐘
+> * 發生時間超過 2 秒 (避免讀取到尚未 commit 的紀錄)
 
-* 批次重新發布
+* 批次發布與重新發布
 
-* 更新 OutboxMessage 狀態
+* 成功或達到最大重試次數時，將紀錄進行封存並從主表刪除
 
-* 控制最大重試次數
+* 控制最大重試次數 (MAX_RETRY = 5)
 
 --- 
 
-** ScheduleRegisterFactory **
+**ScheduleRegisterFactory**
 
 負責將系統內部的排程註冊命令轉換為 Quartz 所需的 JobDetail 與 Trigger，並向 Scheduler 註冊任務。
 
@@ -271,7 +271,7 @@ JSON 範例：
 
 ---
 
-** JobScheduledRegistration **
+**JobScheduledRegistration**
 
 用於進行 Quartz 排程設定(註冊) 
 
@@ -339,7 +339,7 @@ JSON 範例：
 	Publish Event
 	        │
 	        ▼
-	        ? ──► Success ──► Update Log (SENT)
+	        ? ──► Success ──► Archive to History & Delete from Main
 	        │
 	        ▼
 	      Failure
@@ -437,14 +437,12 @@ JSON 範例：
 負責：
 
 >* 定時掃描未成功發送的事件
-
 >* 執行補償式重發布
-
 >* 清理過期分布式鎖
 
 
 
-### Distributed Lock Strategy
+### High Concurrency & Lock Strategy
 
 在多節點部署下：
 
@@ -456,45 +454,42 @@ JSON 範例：
 
 * 重複更新狀態
 
-** >>> 使用： DB-based Distributed Lock**
+** >>> 使用： SKIP LOCKED 機制與狀態封存**
 
 **機制：**
 
-1. 嘗試取得 lockKey = "outbox-relay"
-
-2. 成功才執行 republish
-
-3. 執行完畢後釋放鎖
-
-4. 鎖有 timeout 避免死鎖
+1. 查詢資料庫時底層自動加上 `FOR UPDATE SKIP LOCKED`。
+2. 若多個節點同時撈取，只會讀取尚未被其他節點 Lock 的紀錄，避免重複發送。
+3. 單一 JVM 內，加上 `@DisallowConcurrentExecution` 確保不併發執行。
 
 
-### Retry Strategy
+### Retry & Archive Strategy
 
-OutboxMessage 狀態流轉
+OutboxMessage 資料流轉與封存 (Archive)
 
-	INITIAL  →  SENT
-	      ↓
-	    FAILED (超過重試次數)
+	[主表 OUTBOX_MESSAGE]
+	      INITIAL
+	      ↓     ↓ (重試)
+	[歷史表 OUTBOX_MESSAGE_HISTORY]
+	   SENT   FAILED (超過重試次數)
 
 | 條件 | 行為 |
 | --- | --- |
-| retryCount < MAX_RETRY  | 增加 retryCount 並重新發布 |
-| retryCount ≥ MAX_RETRY | 標記 FAILED |
-| 發送成功 | 標記 SENT |
-| 發送失敗 | 保持 INITIAL，下次排程再處理 |
+| retryCount < MAX_RETRY  | 增加 retryCount 並嘗試發布 |
+| retryCount ≥ MAX_RETRY | 標記 FAILED，搬移至歷史表並從主表刪除 |
+| 發送成功 | 標記 SENT，搬移至歷史表並從主表刪除 |
+| 發送失敗 | 保持 INITIAL 並留存於主表，下次排程再處理 |
 
-** 設計原則 **
+**設計原則**
 
 不立即標記 FAILED ，因為：
 
->* Broker 可能只是暫時異常
+> * Broker 可能只是暫時異常
+> * 避免短暫錯誤導致永久失敗
 
->* 避免短暫錯誤導致永久失敗
+這是一種 **補償式重試（Compensating Retry）**
 
-這是一種：
-
-** >>> 補償式重試（Compensating Retry）**
+> * 同時，透過主表與歷史表的分離，讓排程在輪詢時能保持極高讀取效能。
 
 
 
@@ -503,13 +498,9 @@ OutboxMessage 狀態流轉
 本模組是一個：
 
 >* 高內聚
-
 >* 低耦合
-
 >* 可替換消息基礎設施
-
 >* 可測試
-
 >* 可擴充
 
 的事件驅動設計。
@@ -517,19 +508,11 @@ OutboxMessage 狀態流轉
 提供:
 
 >* 事件驅動 Mail 發送
-
 >* Hexagonal Architecture
-
 >* Message Broker 可替換
-
 >* Event Log 審計機制
-
 >* Idempotency 支援
-
 >* Quartz 補償式重發布
-
 >* SKIP LOCKED 高併發保障
-
 >* 歷史封存機制 (Archive-after-publish)
-
 >* 最終一致性保障
