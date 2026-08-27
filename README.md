@@ -291,67 +291,35 @@ JSON 範例：
 
 ### Event Flow
 
-	MailApplicationService
-	        │
-	        ▼
-	Create MailSendRequestedEvent
-	        │
-	        ▼
-	Resolve Topic
-	        │
-	        ▼
-	Serialize JSON
-	        │
-	        ▼	
-	Create Event Log
-	        │
-	        ▼
-	Publish Event
-	        │
-	        ▼
-	Update Event Log
-	        │
-	        ▼
-	(Consumer Side)
-	Idempotency Check
-	        │
-	        ▼
-	Application Service execution
+```mermaid
+flowchart TD
+    A[MailApplicationService] --> B[Create MailSendRequestedEvent]
+    B --> C[Resolve Topic]
+    C --> D[Serialize JSON]
+    D --> E[Create Event Log]
+    E --> F[Publish Event]
+    F --> G[Update Event Log]
+    G --> H((Consumer Side))
+    H --> I[Idempotency Check]
+    I --> J[Application Service execution]
+```
 	
 
 ### Updated Event Flow (含補償機制)
 
-	MailApplicationService
-	        │
-	        ▼
-	Create MailSendRequestedEvent
-	        │
-	        ▼
-	Resolve Topic
-	        │
-	        ▼
-	Serialize JSON
-	        │
-	        ▼	
-	Create Event Log (INITIAL)
-	        │
-	        ▼
-	Publish Event
-	        │
-	        ▼
-	        ? ──► Success ──► Archive to History & Delete from Main
-	        │
-	        ▼
-	      Failure
-	        │
-	        ▼
-	Quartz Republish Job
-	        │
-	        ▼
-	Retry Publish
-	        │
-	        ▼
-	Update OutboxMessage
+```mermaid
+flowchart TD
+    A[MailApplicationService] --> B[Create MailSendRequestedEvent]
+    B --> C[Resolve Topic]
+    C --> D[Serialize JSON]
+    D --> E[Create Event Log <br/> status: INITIAL]
+    E --> F{Publish Event}
+    F -- Success --> G[Archive to History & Delete from Main]
+    F -- Failure --> H[Keep INITIAL]
+    H -.-> I[Quartz Republish Job]
+    I --> J[Retry Publish]
+    J --> K[Update OutboxMessage <br/> retryCount++]
+```
 
 
 
@@ -467,11 +435,20 @@ JSON 範例：
 
 OutboxMessage 資料流轉與封存 (Archive)
 
-	[主表 OUTBOX_MESSAGE]
-	      INITIAL
-	      ↓     ↓ (重試)
-	[歷史表 OUTBOX_MESSAGE_HISTORY]
-	   SENT   FAILED (超過重試次數)
+```mermaid
+stateDiagram-v2
+    state "主表 (OUTBOX_MESSAGE)" as MainTable {
+        [*] --> INITIAL : 寫入事件
+        INITIAL --> INITIAL : 發送失敗 (重試)
+    }
+    state "歷史表 (OUTBOX_MESSAGE_HISTORY)" as HistoryTable {
+        SENT
+        FAILED
+    }
+    
+    INITIAL --> SENT : 發送成功 (封存)
+    INITIAL --> FAILED : 超過重試次數 (封存)
+```
 
 | 條件 | 行為 |
 | --- | --- |
