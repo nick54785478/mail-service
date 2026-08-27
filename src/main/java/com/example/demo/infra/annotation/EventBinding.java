@@ -18,11 +18,11 @@ import java.lang.annotation.Target;
  * <pre>
  * {@code
  * &#64;EventBinding("send-mail")
- * public class SendMailEvent extends BaseEvent { ... }
+ * public class MailSendRequestedEvent extends BaseEvent { ... }
  * }
  * </pre>
  * 
- * 上例中，SendMailEvent 的 binding key 為 {@code "send-mail"}。
+ * 上例中，MailSendRequestedEvent 的 binding key 為 {@code "send-mail"}。
  * </p>
  *
  * <p>

@@ -10,13 +10,12 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data
-@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @EventBinding(value = "send-mail")
-public class SendMailEvent extends BaseEvent {
+public class MailSendRequestedEvent extends BaseEvent {
 
 	private String email; // 寄信人的 Email
 

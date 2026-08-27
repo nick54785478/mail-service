@@ -19,7 +19,7 @@ public class BaseEvent {
     /**
      * 消息的唯一識別符
      */
-    protected String eventLogUuid;
+    protected String outboxMessageUuid;
 
     /**
      * targetId

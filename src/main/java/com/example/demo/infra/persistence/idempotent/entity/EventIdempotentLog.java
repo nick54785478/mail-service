@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * EventLog 的 冪等表實體
+ * OutboxMessage 的 冪等表實體
  */
 @Entity
 @Getter
@@ -35,7 +35,7 @@ public class EventIdempotentLog {
 
 	@Id
 	@Column(name = "UNIQUE_KEY")
-	private String uniqueKey; // 對應 EventLog 的 UUID
+	private String uniqueKey; // 對應 OutboxMessage 的 UUID
 
 	@Id
 	@Column(name = "EVENT_TYPE")

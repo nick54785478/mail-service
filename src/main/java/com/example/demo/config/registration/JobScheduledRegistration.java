@@ -4,7 +4,7 @@ import org.quartz.Job;
 import org.quartz.SchedulerException;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.iface.schedule.EventRepublishJob;
+import com.example.demo.iface.schedule.OutboxRelayJob;
 import com.example.demo.iface.schedule.ExpiredLocksCleanJob;
 import com.example.demo.infra.schedule.command.RegisterScheduleJobCommand;
 import com.example.demo.infra.schedule.factory.ScheduleRegisterFactory;
@@ -55,10 +55,10 @@ public class JobScheduledRegistration {
 	@PostConstruct
 	public void init() throws SchedulerException {
 
-		// 每 1 分鐘執行一次事件補償重發布
+		// 每 5 秒執行一次 Outbox 轉發
 		// Cron: 秒 分 時 日 月 星期
-		// 0 0/1 * * * ? → 每分鐘第 0 秒執行
-		this.registerJob("EventRepublishJob", "EventRepublishGroup", "0 0/1 * * * ?", EventRepublishJob.class);
+		// 0/5 * * * * ? → 每分鐘第 0 秒執行
+		this.registerJob("OutboxRelayJob", "OutboxRelayGroup", "0/5 * * * * ?", OutboxRelayJob.class);
 
 		// 每 1 小時整點執行一次過期鎖清理
 		// 0 0 0/1 * * ? → 每小時第 0 分 0 秒執行

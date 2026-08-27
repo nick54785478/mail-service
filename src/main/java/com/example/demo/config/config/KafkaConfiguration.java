@@ -12,7 +12,7 @@ import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.ExponentialBackOffWithMaxRetries;
 import org.springframework.kafka.support.serializer.DeserializationException;
 
-import com.example.demo.infra.exception.handler.GlobalKafkaExceptionHandler;
+import com.example.demo.iface.exception.GlobalKafkaExceptionHandler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

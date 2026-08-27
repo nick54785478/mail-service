@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
  * 資料轉換器，轉換資料用
  */
 @Slf4j
-@Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BaseDataTransformer {
 

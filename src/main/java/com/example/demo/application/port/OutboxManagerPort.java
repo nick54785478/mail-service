@@ -17,7 +17,7 @@ import com.example.demo.infra.event.shared.event.BaseEvent;
  * </ul>
  * </p>
  */
-public interface EventLogManagerPort {
+public interface OutboxManagerPort {
 
 	/**
 	 * 建立新的事件日誌記錄。
@@ -29,7 +29,7 @@ public interface EventLogManagerPort {
 	 * @param topic 事件發佈的目標 Topic 或 Queue 名稱
 	 * @param event 要記錄的事件，必須為 {@link BaseEvent} 的子類
 	 */
-	void generateEventLog(String topic, BaseEvent event);
+	void generateOutboxMessage(String topic, BaseEvent event);
 
 	/**
 	 * 更新事件日誌狀態，標記事件已成功發佈。

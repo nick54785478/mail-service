@@ -1,4 +1,4 @@
-package com.example.demo.infra.persistence.eventlog.entity;
+package com.example.demo.infra.persistence.outbox.entity;
 
 import java.util.Date;
 import java.util.Objects;
@@ -6,8 +6,8 @@ import java.util.Objects;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.example.demo.infra.persistence.eventlog.vo.EventLogSendQueueStatus;
-import com.example.demo.infra.persistence.eventlog.command.CreateEventLogCommand;
+import com.example.demo.infra.persistence.outbox.command.CreateOutboxMessageCommand;
+import com.example.demo.infra.persistence.outbox.vo.OutboxStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,15 +17,17 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
- * EventLog 事件發送紀錄實體。
+ * OutboxMessage 事件發送紀錄實體。
  *
  * <pre>
  * 此實體用於記錄系統內部事件（Event）的發送過程與狀態，並作為事件可靠投遞（Reliable Delivery）的追蹤依據。
@@ -46,9 +48,9 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "EVENT_LOG")
+@Table(name = "OUTBOX_MESSAGE", indexes = {@Index(name = "idx_status_occurred_at", columnList = "SEND_QUEUE_STATUS, OCCURRED_AT")})
 @EntityListeners(AuditingEntityListener.class)
-public class EventLog {
+public class OutboxMessage {
 
 	/**
 	 * 主鍵 ID（資料庫識別）
@@ -91,7 +93,8 @@ public class EventLog {
 	/**
 	 * 事件內容（通常為 JSON 字串）
 	 */
-	@Column(name = "BODY")
+	@Lob
+	@Column(name = "BODY", columnDefinition = "TEXT")
 	private String body;
 
 	/**
@@ -123,7 +126,7 @@ public class EventLog {
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "SEND_QUEUE_STATUS")
-	private EventLogSendQueueStatus status;
+	private OutboxStatus status;
 
 	/**
 	 * 在資料持久化前執行。
@@ -135,12 +138,12 @@ public class EventLog {
 	@PrePersist
 	public void prePersist() {
 		if (Objects.isNull(this.status)) {
-			this.status = EventLogSendQueueStatus.INITIAL;
+			this.status = OutboxStatus.INITIAL;
 		}
 	}
 
 	/**
-	 * 建立新的 EventLog。
+	 * 建立新的 OutboxMessage。
 	 *
 	 * <p>
 	 * 此方法僅負責填充事件資料，不負責改變狀態。 狀態將由 @PrePersist 設定為 INITIAL。
@@ -148,8 +151,8 @@ public class EventLog {
 	 *
 	 * @param command 建立事件紀錄所需資料
 	 */
-	public void create(CreateEventLogCommand command) {
-		this.uuid = command.getEventLogUuid();
+	public void create(CreateOutboxMessageCommand command) {
+		this.uuid = command.getOutboxMessageUuid();
 		this.topic = command.getTopic();
 		this.targetId = command.getTargetId();
 		this.className = command.getClassName();
@@ -166,7 +169,7 @@ public class EventLog {
 	 * </p>
 	 */
 	public void publish() {
-		this.status = EventLogSendQueueStatus.SENT;
+		this.status = OutboxStatus.SENT;
 	}
 
 	/**
@@ -194,6 +197,6 @@ public class EventLog {
 	 */
 	public void fail(String reason) {
 		this.failReason = reason;
-		this.status = EventLogSendQueueStatus.FAILED;
+		this.status = OutboxStatus.FAILED;
 	}
 }

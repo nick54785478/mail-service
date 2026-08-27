@@ -34,7 +34,7 @@
 	│
 	├── EventTopicResolverPort
 	├── EventPublisherPort
-	├── EventLogManagerPort
+	├── OutboxManagerPort
 	├── EventIdempotentHelperPort
 	├── MailSenderPort
 	├── MailTemplateGeneratorPort
@@ -43,7 +43,7 @@
 	│
 	├── EventTopicResolverAdapter
 	├── EventPublisherAdapter
-	├── EventLogManagerAdapter
+	├── OutboxManagerAdapter
 	├── EventIdemponentHelperAdapter
 	├── MailSenderAdapter
 	└── MailTemplateGeneratorAdapter
@@ -69,7 +69,7 @@
 	    /**
 	     * 消息的唯一識別符
 	     */
-	    protected String eventLogUuid;
+	    protected String outboxMessageUuid;
 	
 	    /**
 	     * targetId
@@ -107,7 +107,7 @@
 在 BaseEvent 的子類標註
 
 	@EventBinding("send-mail")
-	public class SendMailEvent extends BaseEvent
+	public class MailSendRequestedEvent extends BaseEvent
 
 **用途：**
 
@@ -175,7 +175,7 @@
 JSON 範例：
 
 	{
-	  "type": "SendMailEvent",
+	  "type": "MailSendRequestedEvent",
 	  "email": "test@mail.com",
 	  "subject": "Hello",
 	  "content": "..."
@@ -186,7 +186,7 @@ JSON 範例：
 
 ---
 
-** EventLogManagerPort **
+** OutboxManagerPort **
 
 用途：
 
@@ -212,7 +212,7 @@ JSON 範例：
 
 **流程：**
 
-* 建立 SendMailEvent
+* 建立 MailSendRequestedEvent
 
 * 透過 EventTopicResolver 解析 Topic
 
@@ -233,7 +233,7 @@ JSON 範例：
 
 ---
 
-**EventRepublishJob**
+**OutboxRelayJob**
 
 **職責**
 
@@ -247,7 +247,7 @@ JSON 範例：
 
 * 批次重新發布
 
-* 更新 EventLog 狀態
+* 更新 OutboxMessage 狀態
 
 * 控制最大重試次數
 
@@ -276,10 +276,10 @@ JSON 範例：
 	@PostConstruct
 	public void init() {
 	    this.registerJob(
-	        "EventRepublishJob",
-	        "EventRepublishGroup",
-	        "0 0/1 * * * ?",   // 每分鐘執行
-	        EventRepublishJob.class
+	        "OutboxRelayJob",
+	        "OutboxRelayGroup",
+	        "0/5 * * * * ?",   // 每 5 秒執行
+	        OutboxRelayJob.class
 	    );
 	}
 
@@ -292,7 +292,7 @@ JSON 範例：
 	MailApplicationService
 	        │
 	        ▼
-	Create SendMailEvent
+	Create MailSendRequestedEvent
 	        │
 	        ▼
 	Resolve Topic
@@ -322,7 +322,7 @@ JSON 範例：
 	MailApplicationService
 	        │
 	        ▼
-	Create SendMailEvent
+	Create MailSendRequestedEvent
 	        │
 	        ▼
 	Resolve Topic
@@ -349,7 +349,7 @@ JSON 範例：
 	Retry Publish
 	        │
 	        ▼
-	Update EventLog
+	Update OutboxMessage
 
 
 
@@ -424,7 +424,7 @@ JSON 範例：
 
 為確保 最終一致性（Eventually Consistent），本模組提供：
 
-> Quartz + EventLog 補償式重發布機制
+> Quartz + OutboxMessage 補償式重發布機制
 
 
 ### Quartz Scheduling
@@ -458,7 +458,7 @@ JSON 範例：
 
 **機制：**
 
-1. 嘗試取得 lockKey = "event-republish"
+1. 嘗試取得 lockKey = "outbox-relay"
 
 2. 成功才執行 republish
 
@@ -469,7 +469,7 @@ JSON 範例：
 
 ### Retry Strategy
 
-EventLog 狀態流轉
+OutboxMessage 狀態流轉
 
 	INITIAL  →  SENT
 	      ↓
@@ -526,6 +526,8 @@ EventLog 狀態流轉
 
 >* Quartz 補償式重發布
 
->* 分布式鎖保護
+>* SKIP LOCKED 高併發保障
+
+>* 歷史封存機制 (Archive-after-publish)
 
 >* 最終一致性保障

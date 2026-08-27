@@ -10,15 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.application.port.EventPublisherPort;
+import com.example.demo.application.port.OutboxManagerPort;
 import com.example.demo.application.port.EventTopicResolverPort;
 import com.example.demo.application.port.MailSenderPort;
 import com.example.demo.application.port.MailTemplateGeneratorPort;
 import com.example.demo.application.shared.command.PublishAndSendMailCommand;
 import com.example.demo.application.shared.command.SendMailCommand;
 import com.example.demo.infra.event.codec.EventJsonCodec;
-import com.example.demo.infra.event.shared.command.PublishEventCommand;
-import com.example.demo.infra.event.shared.event.SendMailEvent;
+import com.example.demo.infra.event.shared.event.MailSendRequestedEvent;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,7 @@ public class MailApplicationService {
 
 	private final MailSenderPort mailSender;
 	private final EventJsonCodec eventJsonCodec;
-	private final EventPublisherPort eventPublisher;
+	private final OutboxManagerPort outboxMessageManager;
 	private final EventTopicResolverPort topicResolver;
 	private final MailTemplateGeneratorPort mailTemplateGenerator;
 
@@ -45,22 +44,17 @@ public class MailApplicationService {
 	public void publishSentMailEvent(PublishAndSendMailCommand command) throws IOException {
 		String content = this.generateMockEmail();
 
-		// 轉換為 Event Data
-		SendMailEvent sendMailEvent = SendMailEvent.builder().email(command.getEmail()).subject(command.getSubject())
-				.targetId(UUID.randomUUID().toString()).eventLogUuid(UUID.randomUUID().toString()).content(content)
-				.build();
+		// 使用 Constructor 實例化並搭配 Setter 設定繼承的屬性
+		MailSendRequestedEvent mailSendRequestedEvent = new MailSendRequestedEvent(command.getEmail(), command.getSubject(), content);
+		mailSendRequestedEvent.setTargetId(UUID.randomUUID().toString());
+		mailSendRequestedEvent.setOutboxMessageUuid(UUID.randomUUID().toString());
 
 		// 透過 Event 取得 Topic
-		String topic = topicResolver.resolveTopic(sendMailEvent);
+		String topic = topicResolver.resolveTopic(mailSendRequestedEvent);
 
 		if (topic != null) {
-
-			// 建立 Publish Event
-			PublishEventCommand publishEvent = PublishEventCommand.builder()
-					.event(eventJsonCodec.serialize(sendMailEvent)).topic(topic).build();
-
-			// 發布寄信事件
-			eventPublisher.publish(publishEvent);
+			// 僅將事件寫入 OutboxMessage (Outbox)，由 Quartz 排程非同步轉發至 Broker
+			outboxMessageManager.generateOutboxMessage(topic, mailSendRequestedEvent);
 		}
 	}
 

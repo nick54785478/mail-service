@@ -1,4 +1,4 @@
-package com.example.demo.infra.persistence.eventlog.command;
+package com.example.demo.infra.persistence.outbox.command;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateEventLogCommand {
+public class CreateOutboxMessageCommand {
 
-	private String eventLogUuid;
+	private String outboxMessageUuid;
 	
 	private String topic;
 	

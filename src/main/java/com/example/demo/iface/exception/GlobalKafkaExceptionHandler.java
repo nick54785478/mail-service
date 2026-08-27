@@ -1,4 +1,4 @@
-package com.example.demo.infra.exception.handler;
+package com.example.demo.iface.exception;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.stereotype.Component;

@@ -34,10 +34,10 @@ class EventIdemponentHelperAdapter implements EventIdempotentHelperPort {
 	public boolean handleIdempotency(BaseEvent event) {
 		boolean result = false;
 		List<EventIdempotentLog> logList = repository.findByEventTypeAndUniqueKey(event.getClass().getName(),
-				event.getEventLogUuid());
+				event.getOutboxMessageUuid());
 		// 若查無資料
 		if (logList.isEmpty()) {
-			repository.insert(event.getClass().getName(), event.getEventLogUuid(), event.getTargetId());
+			repository.insert(event.getClass().getName(), event.getOutboxMessageUuid(), event.getTargetId());
 			result = true;
 		}
 		return result;

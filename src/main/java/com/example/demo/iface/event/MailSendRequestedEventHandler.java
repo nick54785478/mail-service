@@ -10,23 +10,23 @@ import com.example.demo.application.port.EventIdempotentHelperPort;
 import com.example.demo.application.service.MailApplicationService;
 import com.example.demo.application.shared.command.SendMailCommand;
 import com.example.demo.infra.event.codec.EventJsonCodec;
-import com.example.demo.infra.event.shared.event.SendMailEvent;
+import com.example.demo.infra.event.shared.event.MailSendRequestedEvent;
 import com.example.demo.util.BaseDataTransformer;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class SendMailEventHandler {
+public class MailSendRequestedEventHandler {
 
 	private final MailApplicationService applicationService;
-	private final EventIdempotentHelperPort eventIdemponentAdapter;
+	private final EventIdempotentHelperPort eventIdemponentHelper;
 	private final EventJsonCodec eventJsonCodec;
 
-	public SendMailEventHandler(MailApplicationService applicationService,
-			EventIdempotentHelperPort eventIdemponentAdapter, EventJsonCodec eventJsonCodec) {
+	public MailSendRequestedEventHandler(MailApplicationService applicationService,
+			EventIdempotentHelperPort eventIdemponentHelper, EventJsonCodec eventJsonCodec) {
 		this.applicationService = applicationService;
-		this.eventIdemponentAdapter = eventIdemponentAdapter;
+		this.eventIdemponentHelper = eventIdemponentHelper;
 		this.eventJsonCodec = eventJsonCodec;
 	}
 
@@ -40,10 +40,10 @@ public class SendMailEventHandler {
 	public void handle(ConsumerRecord<?, ?> data, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
 		// @Header 提取 Kafka 消息中的頭部資訊，這裡的 KafkaHeaders.RECEIVED_TOPIC 表示消息所屬的 Kafka 主題名稱。
 		log.info("Topic: {}, EventData: {}", topic, data);
-		SendMailEvent event = eventJsonCodec.unserialize((String) data.value(), SendMailEvent.class);
+		MailSendRequestedEvent event = eventJsonCodec.unserialize((String) data.value(), MailSendRequestedEvent.class);
 
 		// 冪等機制，防止重覆消費所帶來的副作用
-		if (!eventIdemponentAdapter.handleIdempotency(event)) {
+		if (!eventIdemponentHelper.handleIdempotency(event)) {
 			log.warn("Consume repeated: {}", event);
 			return;
 		}

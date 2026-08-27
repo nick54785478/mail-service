@@ -16,20 +16,23 @@ import com.example.demo.iface.dto.PublishAndSendMailResource;
 import com.example.demo.util.BaseDataTransformer;
 
 import lombok.AllArgsConstructor;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/mail")
 public class SendMailController {
 
-	private MailApplicationService applicationService;
+	private final MailApplicationService applicationService;
 
 	@PostMapping("")
-	public ResponseEntity<MailSentResource> sendMail(@RequestBody PublishAndSendMailResource resource)
-			throws IOException {
-		PublishAndSendMailCommand command = BaseDataTransformer.transformData(resource,
-				PublishAndSendMailCommand.class);
-		applicationService.publishSentMailEvent(command);
-		return new ResponseEntity<>(new MailSentResource("200", "寄信成功!"), HttpStatus.OK);
+	public Mono<ResponseEntity<MailSentResource>> sendMail(@RequestBody PublishAndSendMailResource resource) {
+		return Mono.fromCallable(() -> {
+			PublishAndSendMailCommand command = BaseDataTransformer.transformData(resource,
+					PublishAndSendMailCommand.class);
+			applicationService.publishSentMailEvent(command);
+			return new ResponseEntity<>(new MailSentResource("200", "寄信成功!"), HttpStatus.OK);
+		}).subscribeOn(Schedulers.boundedElastic());
 	}
 }
