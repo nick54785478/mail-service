@@ -32,6 +32,7 @@
 	│
 	├── MailApplicationService
 	│
+	├── DistributeLockManagerPort
 	├── EventTopicResolverPort
 	├── EventPublisherPort
 	├── OutboxManagerPort
@@ -41,6 +42,7 @@
 	│
 	Infrastructure Layer
 	│
+	├── DistributeLockManagerAdapter
 	├── EventTopicResolverAdapter
 	├── EventPublisherAdapter
 	├── OutboxManagerAdapter
