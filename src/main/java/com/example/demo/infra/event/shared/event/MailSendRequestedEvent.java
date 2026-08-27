@@ -3,15 +3,12 @@ package com.example.demo.infra.event.shared.event;
 import com.example.demo.infra.annotation.EventBinding;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @EventBinding(value = "send-mail")
@@ -23,4 +20,11 @@ public class MailSendRequestedEvent extends BaseEvent {
 
 	private String content; // 內容
 
+	public MailSendRequestedEvent(String email, String subject, String content, String targetId) {
+		this.email = email;
+		this.subject = subject;
+		this.content = content;
+		this.targetId = targetId != null ? targetId : java.util.UUID.randomUUID().toString();
+		this.outboxMessageUuid = java.util.UUID.randomUUID().toString();
+	}
 }

@@ -42,12 +42,11 @@ public class MailApplicationService {
 	 * @throws IOException
 	 */
 	public void publishSentMailEvent(PublishAndSendMailCommand command) throws IOException {
-		String content = this.generateMockEmail();
+		String content = command.getContent();
 
 		// 使用 Constructor 實例化並搭配 Setter 設定繼承的屬性
-		MailSendRequestedEvent mailSendRequestedEvent = new MailSendRequestedEvent(command.getEmail(), command.getSubject(), content);
-		mailSendRequestedEvent.setTargetId(UUID.randomUUID().toString());
-		mailSendRequestedEvent.setOutboxMessageUuid(UUID.randomUUID().toString());
+		MailSendRequestedEvent mailSendRequestedEvent = new MailSendRequestedEvent(
+				command.getEmail(), command.getSubject(), content, command.getTargetId());
 
 		// 透過 Event 取得 Topic
 		String topic = topicResolver.resolveTopic(mailSendRequestedEvent);
@@ -67,7 +66,8 @@ public class MailApplicationService {
 	 */
 	public void sendMail(SendMailCommand command, String attachmentName, InputStream attachment) {
 		try {
-			mailSender.send(command.getEmail(), command.getSubject(), command.getContent(), attachmentName, attachment);
+			String finalContent = wrapContent(command.getContent());
+			mailSender.send(command.getEmail(), command.getSubject(), finalContent, attachmentName, attachment);
 		} catch (MessagingException | IOException e) {
 			log.error("發生錯誤，寄信失敗");
 		}
@@ -80,22 +80,27 @@ public class MailApplicationService {
 	 */
 	public void sendMail(SendMailCommand command) {
 		try {
-			mailSender.send(command.getEmail(), command.getSubject(), command.getContent(), null, null);
+			String finalContent = wrapContent(command.getContent());
+			mailSender.send(command.getEmail(), command.getSubject(), finalContent, null, null);
 		} catch (MessagingException | IOException e) {
 			log.error("發生錯誤，寄信失敗");
 		}
 	}
 
 	/**
-	 * 建立信件內容
+	 * 使用信紙外框 (Base Layout) 包裝業務內容
 	 * 
-	 * @return 信件內容
+	 * @param originalContent 原始內容
+	 * @return 包裝後的完整 HTML
 	 */
-	private String generateMockEmail() throws IOException {
-		String filePath = "email";
-		String fileName = "email-template.html";
+	private String wrapContent(String originalContent) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("username", "Nick");
-		return mailTemplateGenerator.generateStandardHtmlContent(filePath, fileName, map);
+		map.put("bodyContent", originalContent != null ? originalContent : "");
+		try {
+			return mailTemplateGenerator.generateStandardHtmlContent("email", "base_layout.html", map);
+		} catch (IOException e) {
+			log.error("裝飾信件發生錯誤，退回使用原始內容", e);
+			return originalContent;
+		}
 	}
 }

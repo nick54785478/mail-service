@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>System Mail</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #ffffff;
+      border: 1px solid #dddddd;
+      border-radius: 6px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .header {
+      font-size: 22px;
+      font-weight: bold;
+      color: #333333;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #007BFF;
+      padding-bottom: 10px;
+    }
+    .content {
+      font-size: 16px;
+      color: #444444;
+      line-height: 1.6;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #eeeeee;
+      font-size: 12px;
+      color: #999999;
+      text-align: center;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: #ffffff !important;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <!-- Header -->
+    <div class="header">
+      🏢 企業統一發信中心
+    </div>
+    
+    <!-- 核心內容 (Body)，將由各微服務傳入的 HTML 動態鑲嵌於此 -->
+    <div class="content" th:utext="${bodyContent}">
+      <!-- Default fallback content if none provided -->
+      <p>無內容</p>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      本郵件由系統自動發送，請勿直接回覆。<br>
+      &copy; 2026 Your Company, All rights reserved.
+    </div>
+  </div>
+</body>
+</html>

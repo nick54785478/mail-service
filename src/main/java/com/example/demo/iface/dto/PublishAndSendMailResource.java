@@ -17,4 +17,6 @@ public class PublishAndSendMailResource {
 
 	private String content; // 內容
 
+	private String targetId; // 目標代碼
+
 }
