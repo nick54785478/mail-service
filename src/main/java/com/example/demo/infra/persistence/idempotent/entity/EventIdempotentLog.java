@@ -34,7 +34,7 @@ import lombok.Setter;
 public class EventIdempotentLog {
 
 	@Id
-	@Column(name = "UNIQUE_KEY")
+	@Column(name = "UNIQUE_ID")
 	private String uniqueKey; // 對應 OutboxMessage 的 UUID
 
 	@Id

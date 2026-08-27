@@ -18,11 +18,11 @@ import jakarta.persistence.LockModeType;
 public interface EventIdempotentLogRepository extends JpaRepository<EventIdempotentLog, EventIdempotentLogId> {
 
 	@Modifying
-	@Query(value = "INSERT INTO EVENT_IDEMPOTENT_LOG (event_type, unique_key) VALUES (:eventType, :uniqueKey)", nativeQuery = true)
+	@Query(value = "INSERT INTO event_idempotent_log (event_type, unique_id) VALUES (:eventType, :uniqueKey)", nativeQuery = true)
 	int insert(String eventType, String uniqueKey);
 
 	@Modifying
-	@Query(value = "INSERT INTO EVENT_IDEMPOTENT_LOG (event_type, unique_key, target_id, created_date) VALUES (:eventType, :uniqueKey, :targetId, NOW())", nativeQuery = true)
+	@Query(value = "INSERT INTO event_idempotent_log (event_type, unique_id, target_id, created_date) VALUES (:eventType, :uniqueKey, :targetId, NOW())", nativeQuery = true)
 	int insert(String eventType, String uniqueKey, String targetId);
 
 	@Transactional

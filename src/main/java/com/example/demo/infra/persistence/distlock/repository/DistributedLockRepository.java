@@ -21,8 +21,8 @@ public interface DistributedLockRepository extends JpaRepository<DistributedLock
 
 	@Modifying
 	@Query(value = """
-			    INSERT INTO DISTRIBUTED_LOCK (LOCK_KEY, OWNER_ID, EXPIRES_AT, CREATED_AT)
-			    VALUES (:lockKey, :ownerId, :expiresAt, UTC_TIMESTAMP())
+			    INSERT INTO distributed_lock (lock_key, owner_id, expires_at, created_at)
+			    VALUES (:lockKey, :ownerId, :expiresAt, NOW())
 			""", nativeQuery = true)
 	int insert(@Param("lockKey") String lockKey, @Param("ownerId") String ownerId,
 			@Param("expiresAt") Instant expiresAt);
@@ -42,7 +42,7 @@ public interface DistributedLockRepository extends JpaRepository<DistributedLock
 			@Param("expiresAt") Instant expiresAt, @Param("now") Instant now);
 
 	@Modifying
-	@Query(value = "DELETE FROM DISTRIBUTED_LOCK WHERE EXPIRES_AT < :threshold", nativeQuery = true)
+	@Query(value = "DELETE FROM distributed_lock WHERE EXPIRES_AT < :threshold", nativeQuery = true)
 	int deleteExpiredLocks(@Param("threshold") Instant threshold);
 
 }
