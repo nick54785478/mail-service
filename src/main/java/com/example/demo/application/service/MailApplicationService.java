@@ -69,7 +69,8 @@ public class MailApplicationService {
 			String finalContent = wrapContent(command.getContent());
 			mailSender.send(command.getEmail(), command.getSubject(), finalContent, attachmentName, attachment);
 		} catch (MessagingException | IOException e) {
-			log.error("發生錯誤，寄信失敗");
+			log.error("發生錯誤，寄信失敗", e);
+			throw new RuntimeException("寄信失敗，觸發重試機制", e);
 		}
 	}
 
@@ -83,7 +84,8 @@ public class MailApplicationService {
 			String finalContent = wrapContent(command.getContent());
 			mailSender.send(command.getEmail(), command.getSubject(), finalContent, null, null);
 		} catch (MessagingException | IOException e) {
-			log.error("發生錯誤，寄信失敗");
+			log.error("發生錯誤，寄信失敗", e);
+			throw new RuntimeException("寄信失敗，觸發重試機制", e);
 		}
 	}
 

@@ -1,0 +1,19 @@
+<div>
+  <h3 style="color: #d9534f; margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+    🚨 系統死信告警 (Dead Letter Topic)
+  </h3>
+  <p>您好，系統偵測到一筆無法被處理的 Kafka 訊息，已超過最大重試次數並拋轉至 DLT。</p>
+  
+  <h4 style="color: #333; margin-bottom: 5px;">錯誤詳情：</h4>
+  <div style="background-color: #fff3f3; border-left: 4px solid #d9534f; padding: 15px; margin-bottom: 20px; word-break: break-all; overflow-wrap: break-word;">
+    <p style="margin: 0 0 10px 0;"><strong>原始 Topic：</strong> <span th:text="${originalTopic}">topic.send-mail</span></p>
+    <p style="margin: 0;"><strong>錯誤原因：</strong> <span th:text="${exceptionMessage}">Exception Message</span></p>
+  </div>
+
+  <h4 style="color: #333; margin-bottom: 5px;">訊息 Payload：</h4>
+  <pre style="background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; overflow-x: auto; font-size: 14px; border-radius: 4px; white-space: pre-wrap; word-break: break-all;" th:text="${payload}">
+{"type": "MailSendRequestedEvent"}
+  </pre>
+
+  <p style="margin-top: 20px; font-weight: bold;">請維運人員盡快登入系統或 Kafka-UI 進行查修與補發作業。</p>
+</div>

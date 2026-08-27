@@ -5,6 +5,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.application.port.EventIdempotentHelperPort;
 import com.example.demo.application.service.MailApplicationService;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@Transactional(rollbackFor = Exception.class)
 public class MailSendRequestedEventHandler {
 
 	private final MailApplicationService applicationService;

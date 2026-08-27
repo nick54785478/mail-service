@@ -19,7 +19,7 @@ import lombok.AllArgsConstructor;
  */
 @Component
 @AllArgsConstructor
-@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.DEFAULT, timeout = 3600, rollbackFor = Exception.class)
+@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT, timeout = 3600, rollbackFor = Exception.class)
 class EventIdemponentHelperAdapter implements EventIdempotentHelperPort {
 
 	EventIdempotentLogRepository repository;
