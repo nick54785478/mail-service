@@ -10,7 +10,7 @@ import com.example.demo.infra.persistence.outbox.entity.OutboxMessage;
 import com.example.demo.infra.persistence.outbox.command.CreateOutboxMessageCommand;
 import com.example.demo.application.port.OutboxManagerPort;
 import com.example.demo.infra.event.codec.EventJsonCodec;
-import com.example.demo.infra.event.shared.event.BaseEvent;
+import com.example.demo.application.shared.event.BaseEvent;
 import com.example.demo.infra.persistence.outbox.repository.OutboxMessageRepository;
 
 import lombok.AllArgsConstructor;
@@ -34,7 +34,7 @@ class OutboxManagerAdapter implements OutboxManagerPort {
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
 	public void generateOutboxMessage(String topic, BaseEvent event) {
-		Optional<OutboxMessage> optional = outboxMessageRepository.findByUuid(event.getOutboxMessageUuid());
+		Optional<OutboxMessage> optional = outboxMessageRepository.findByUuid(event.outboxMessageUuid());
 
 		if (optional.isPresent()) {
 			return;
@@ -42,8 +42,8 @@ class OutboxManagerAdapter implements OutboxManagerPort {
 
 		OutboxMessage outboxMessage = new OutboxMessage();
 		// 建立 OutboxMessage
-		CreateOutboxMessageCommand command = CreateOutboxMessageCommand.builder().outboxMessageUuid(event.getOutboxMessageUuid())
-				.topic(topic).targetId(event.getTargetId()).className(event.getClass().getName())
+		CreateOutboxMessageCommand command = CreateOutboxMessageCommand.builder().outboxMessageUuid(event.outboxMessageUuid())
+				.topic(topic).targetId(event.targetId()).className(event.getClass().getName())
 				.body(eventDataTransformer.serialize(event)).userId("System").build();
 		outboxMessage.create(command);
 		outboxMessageRepository.saveAndFlush(outboxMessage);
@@ -59,7 +59,7 @@ class OutboxManagerAdapter implements OutboxManagerPort {
 	@Override
 	public void updateStatusAfterPublished(BaseEvent event) {
 		// 更新狀態為: 已發布
-		outboxMessageRepository.findByUuid(event.getOutboxMessageUuid()).ifPresent(outboxMessage -> {
+		outboxMessageRepository.findByUuid(event.outboxMessageUuid()).ifPresent(outboxMessage -> {
 			outboxMessage.publish();
 			outboxMessageRepository.saveAndFlush(outboxMessage);
 		});

@@ -80,7 +80,7 @@ public class ScheduleRegisterFactory {
 	 */
 	public void register(RegisterScheduleJobCommand metadata) throws SchedulerException {
 
-		JobKey jobKey = JobKey.jobKey(metadata.getJobName(), metadata.getGroupName());
+		JobKey jobKey = JobKey.jobKey(metadata.jobName(), metadata.groupName());
 
 		// 若 Job 已存在，刪除舊設定以確保排程一致性
 		if (scheduler.checkExists(jobKey)) {
@@ -93,7 +93,7 @@ public class ScheduleRegisterFactory {
 
 		scheduler.scheduleJob(jobDetail, trigger);
 
-		log.info("排程註冊成功，JobName：{}", metadata.getJobName());
+		log.info("排程註冊成功，JobName：{}", metadata.jobName());
 	}
 
 	/**
@@ -117,7 +117,7 @@ public class ScheduleRegisterFactory {
 	 */
 	private JobDetail createJobDetail(RegisterScheduleJobCommand metadata) {
 
-		return JobBuilder.newJob(metadata.getJobClass()).withIdentity(metadata.getJobName(), metadata.getGroupName())
+		return JobBuilder.newJob(metadata.jobClass()).withIdentity(metadata.jobName(), metadata.groupName())
 				.build();
 	}
 
@@ -151,8 +151,8 @@ public class ScheduleRegisterFactory {
 	 */
 	private Trigger createTrigger(RegisterScheduleJobCommand metadata) {
 
-		return TriggerBuilder.newTrigger().withIdentity(metadata.getJobName() + "Trigger", metadata.getGroupName())
-				.withSchedule(CronScheduleBuilder.cronSchedule(metadata.getCronExpression()))
-				.forJob(metadata.getJobName(), metadata.getGroupName()).build();
+		return TriggerBuilder.newTrigger().withIdentity(metadata.jobName() + "Trigger", metadata.groupName())
+				.withSchedule(CronScheduleBuilder.cronSchedule(metadata.cronExpression()))
+				.forJob(metadata.jobName(), metadata.groupName()).build();
 	}
 }

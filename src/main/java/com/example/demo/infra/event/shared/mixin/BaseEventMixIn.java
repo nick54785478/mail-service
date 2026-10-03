@@ -1,8 +1,7 @@
 package com.example.demo.infra.event.shared.mixin;
 
-import com.example.demo.infra.annotation.EventBinding;
 import com.example.demo.infra.event.codec.EventJsonCodec;
-import com.example.demo.infra.event.shared.event.BaseEvent;
+import com.example.demo.application.shared.event.BaseEvent;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
@@ -32,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * 注意：
  * <ul>
  * <li>此類僅作為 MixIn 使用，不能直接實例化。</li>
- * <li>實際事件類別請繼承 {@link BaseEvent} 並標註 {@link EventBinding}。</li>
+ * <li>實際事件類別請實作 {@link BaseEvent} 並於 EventMessageConfiguration 中註冊。</li>
  * </ul>
  * </p>
  */

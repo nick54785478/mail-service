@@ -1,11 +1,7 @@
 package com.example.demo.application.port;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-
-import jakarta.mail.MessagingException;
-import jakarta.validation.constraints.Email;
 
 /**
  * 郵件發送器介面（Mail Sender Port）。
@@ -25,11 +21,8 @@ public interface MailSenderPort {
 	 * @param text               郵件內容
 	 * @param attachmentFilename 附件檔案名稱
 	 * @param file               附件檔案的輸入流
-	 * @throws MessagingException 如果發送郵件過程中發生消息異常
-	 * @throws IOException        如果發送郵件過程中發生 IO 異常
 	 */
-	void send(String to, String subject, String text, String attachmentFilename, InputStream file)
-			throws MessagingException, IOException;
+	void send(String to, String subject, String text, String attachmentFilename, InputStream file);
 
 	/**
 	 * 發送郵件(含多個附件)。
@@ -38,11 +31,8 @@ public interface MailSenderPort {
 	 * @param subject 郵件主題
 	 * @param text    郵件內容
 	 * @param attachments     Map<附件檔案名稱, 附件檔案的輸入流>
-	 * @throws MessagingException 如果發送郵件過程中發生消息異常
-	 * @throws IOException        如果發送郵件過程中發生 IO 異常
 	 */
-	void send(String to, String subject, String text, Map<String, InputStream> attachments)
-			throws MessagingException;
+	void send(String to, String subject, String text, Map<String, InputStream> attachments);
 
 	/**
 	 * 同一封郵件 CC 給多個對象。
@@ -52,9 +42,6 @@ public interface MailSenderPort {
 	 * @param subject 郵件主題
 	 * @param text    郵件內容
 	 * @param attachments     Map<附件檔案名稱, 附件檔案的輸入流>
-	 * @throws MessagingException 如果發送郵件過程中發生消息異常
-	 * @throws IOException        如果發送郵件過程中發生 IO 異常
 	 */
-	void sendAndCc(String to, String ccList, String subject, String text, Map<String, InputStream> attachments)
-			throws MessagingException;
+	void sendAndCc(String to, String ccList, String subject, String text, Map<String, InputStream> attachments);
 }

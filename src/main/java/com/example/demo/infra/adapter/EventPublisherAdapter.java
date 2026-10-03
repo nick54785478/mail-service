@@ -6,7 +6,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.application.port.EventPublisherPort;
-import com.example.demo.infra.event.shared.command.PublishEventCommand;
+import com.example.demo.application.shared.command.PublishEventCommand;
 
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -26,17 +26,16 @@ class EventPublisherAdapter implements EventPublisherPort {
 	 */
 	@Override
 	public void publish(PublishEventCommand event) {
-		if (StringUtils.isNotBlank(event.getPartitionIndex())) {
-			kafkaTemplate.send(event.getTopic(), event.getPartitionIndex(), event.getEvent());
+		if (StringUtils.isNotBlank(event.partitionIndex())) {
+			kafkaTemplate.send(event.topic(), event.partitionIndex(), event.event());
 		} else {
-			kafkaTemplate.send(event.getTopic(), event.getEvent());
+			kafkaTemplate.send(event.topic(), event.event());
 		}
-		log.debug("發布事件 Topic:{}，Message: {}", event.getTopic(), event.getEvent());
+		log.debug("發布事件 Topic:{}，Message: {}", event.topic(), event.event());
 	}
 
 	@Override
-	public void republish(List<PublishEventCommand> commands) {
-		commands.stream().forEach(this::publish);
+	public void publish(List<PublishEventCommand> commands) {
+		commands.forEach(this::publish);
 	}
-
 }

@@ -5,8 +5,9 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.infra.event.shared.event.BaseEvent;
+import com.example.demo.application.shared.event.BaseEvent;
 import com.example.demo.infra.event.shared.mixin.BaseEventMixIn;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -58,6 +59,7 @@ public class EventJsonCodec {
 		// 初始化 ObjectMapper，支援 Java 8 時間類型
 		this.eventMapper = JsonMapper.builder().addModule(new JavaTimeModule()) // 註冊 Java 8 時間模組
 				.addMixIn(BaseEvent.class, BaseEventMixIn.class) // 註冊多型 MixIn
+				.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES) // 忽略未知的屬性 (例如 polymorphic type)
 				.build();
 
 		// 動態註冊事件子類

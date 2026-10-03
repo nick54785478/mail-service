@@ -11,8 +11,7 @@ import com.example.demo.application.port.EventIdempotentHelperPort;
 import com.example.demo.application.service.MailApplicationService;
 import com.example.demo.application.shared.command.SendMailCommand;
 import com.example.demo.infra.event.codec.EventJsonCodec;
-import com.example.demo.infra.event.shared.event.MailSendRequestedEvent;
-import com.example.demo.util.BaseDataTransformer;
+import com.example.demo.application.shared.event.MailSendRequestedEvent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,7 +50,11 @@ public class MailSendRequestedEventHandler {
 		}
 
 		// 防腐處理
-		SendMailCommand command = BaseDataTransformer.transformData(event, SendMailCommand.class);
+		SendMailCommand command = new SendMailCommand(
+				event.email(),
+				event.subject(),
+				event.content()
+		);
 
 		// 發出信件
 		applicationService.sendMail(command);

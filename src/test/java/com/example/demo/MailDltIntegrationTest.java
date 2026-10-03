@@ -43,10 +43,12 @@ class MailDltIntegrationTest {
 			.send(anyString(), eq("【系統告警】死信佇列 (DLT) 觸發通知"), anyString(), isNull(), isNull());
 
 		// 3. 發布寄信任務
-		PublishAndSendMailCommand command = new PublishAndSendMailCommand();
-		command.setEmail("target@example.com");
-		command.setSubject("必定失敗的測試信");
-		command.setContent("<p>這是一封註定失敗的信件</p>");
+		PublishAndSendMailCommand command = new PublishAndSendMailCommand(
+				"target@example.com",
+				"必定失敗的測試信",
+				"<p>這是一封註定失敗的信件</p>",
+				null
+		);
 		
 		mailApplicationService.publishSentMailEvent(command);
 

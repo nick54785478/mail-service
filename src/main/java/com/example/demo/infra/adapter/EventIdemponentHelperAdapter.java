@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.infra.persistence.idempotent.entity.EventIdempotentLog;
 import com.example.demo.application.port.EventIdempotentHelperPort;
-import com.example.demo.infra.event.shared.event.BaseEvent;
+import com.example.demo.application.shared.event.BaseEvent;
 import com.example.demo.infra.persistence.idempotent.repository.EventIdempotentLogRepository;
 
 import lombok.AllArgsConstructor;
@@ -34,10 +34,10 @@ class EventIdemponentHelperAdapter implements EventIdempotentHelperPort {
 	public boolean handleIdempotency(BaseEvent event) {
 		boolean result = false;
 		List<EventIdempotentLog> logList = repository.findByEventTypeAndUniqueKey(event.getClass().getName(),
-				event.getOutboxMessageUuid());
+				event.outboxMessageUuid());
 		// 若查無資料
 		if (logList.isEmpty()) {
-			repository.insert(event.getClass().getName(), event.getOutboxMessageUuid(), event.getTargetId());
+			repository.insert(event.getClass().getName(), event.outboxMessageUuid(), event.targetId());
 			result = true;
 		}
 		return result;

@@ -28,12 +28,12 @@ class MailIntegrationTest {
 		// 但為了簡化測試，我們直接把整個檔案內容丟進去，瀏覽器一樣可以正常渲染。
 
 		// 2. 準備發信命令
-		PublishAndSendMailCommand command = new PublishAndSendMailCommand();
-		command.setEmail("test@example.com");
-		command.setSubject("整合測試：外框與內容結合");
-		command.setContent(content);
-		// 模擬從外部微服務傳來的業務 ID
-		command.setTargetId("ORDER-20260827-001");
+		PublishAndSendMailCommand command = new PublishAndSendMailCommand(
+				"test@example.com",
+				"整合測試：外框與內容結合",
+				content,
+				"ORDER-20260827-001"
+		);
 
 		// 3. 呼叫服務發布事件 (存入 Outbox)
 		mailApplicationService.publishSentMailEvent(command);

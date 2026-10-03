@@ -1,23 +1,8 @@
 package com.example.demo.application.shared.command;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class PublishAndSendMailCommand {
-
-	private String email; // 寄信人的 Email
-
-	private String subject; // 標題
-
-	private String content; // 內容
-
-	private String targetId; // 目標代碼
-
-}
+public record PublishAndSendMailCommand(
+		String email,    // 寄信人的 Email
+		String subject,  // 標題
+		String content,  // 內容
+		String targetId  // 目標代碼
+) {}

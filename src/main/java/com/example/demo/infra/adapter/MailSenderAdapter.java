@@ -1,6 +1,5 @@
 package com.example.demo.infra.adapter;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -12,8 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 import com.example.demo.application.port.MailSenderPort;
+import com.example.demo.application.shared.exception.MailSendException;
 
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMessage.RecipientType;
@@ -31,96 +30,73 @@ class MailSenderAdapter implements MailSenderPort {
 
 	private JavaMailSender javaMailSender;
 
-	/**
-	 * 發送郵件。
-	 * 
-	 * @param to                 收件人電子郵件地址
-	 * @param subject            郵件主題
-	 * @param text               郵件內容
-	 * @param attachmentFilename 附件檔案名稱
-	 * @param file               附件檔案的輸入流
-	 * @throws MessagingException 如果發送郵件過程中發生消息異常
-	 * @throws IOException        如果發送郵件過程中發生 IO 異常
-	 */
 	@Override
-	public void send(String to, String subject, String text, String attachmentFilename, InputStream file)
-			throws MessagingException, IOException {
+	public void send(String to, String subject, String text, String attachmentFilename, InputStream file) {
 		log.debug("send to: {}", to);
-		MimeMessage msg = javaMailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
-		helper.setTo(to);
-		helper.setSubject(subject);
-		helper.setText(text, true);
-		if (attachmentFilename != null && !attachmentFilename.isEmpty()) {
-			helper.addAttachment(attachmentFilename, new ByteArrayResource(IOUtils.toByteArray(file)));
-		}
-
-		this.javaMailSender.send(msg);
-	}
-
-	/**
-	 * 發送郵件(含多個附件)。
-	 * 
-	 * @param to      收件人電子郵件地址
-	 * @param subject 郵件主題
-	 * @param text    郵件內容
-	 * @param map     Map<附件檔案名稱, 附件檔案的輸入流>
-	 * @throws MessagingException 如果發送郵件過程中發生消息異常
-	 * @throws IOException        如果發送郵件過程中發生 IO 異常
-	 */
-	@Override
-	public void send(String to, String subject, String text, Map<String, InputStream> map) throws MessagingException {
-		log.debug("send to: {}", to);
-		MimeMessage msg = javaMailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
-		helper.setTo(to);
-		helper.setSubject(subject);
-		helper.setText(text, true);
-
-		if (!map.isEmpty()) {
-			map.forEach((k, v) -> {
-				try {
-					helper.addAttachment(k, new ByteArrayResource(IOUtils.toByteArray(v)));
-				} catch (MessagingException e) {
-					log.error("在郵件處理過程中發生了一些錯誤導致加入附件失敗 ", e);
-				} catch (IOException e) {
-					log.error("文件不存在或者無法讀取 ", e);
-
-				}
-			});
-		}
-
-		this.javaMailSender.send(msg);
-	}
-
-	/**
-	 * 同一封郵件 CC 給多個對象。
-	 * 
-	 * @param to      收件者
-	 * @param ccList  多個收件人電子郵件地址清單(以 "," 隔開)
-	 * @param subject 郵件主題
-	 * @param text    郵件內容
-	 * @param map     Map<附件檔案名稱, 附件檔案的輸入流>
-	 * @throws MessagingException 如果發送郵件過程中發生消息異常
-	 * @throws IOException        如果發送郵件過程中發生 IO 異常
-	 */
-	@Override
-	public void sendAndCc(String to, String ccList, String subject, String text, Map<String, InputStream> map)
-			throws MessagingException {
-		log.debug("send to: {}", to);
-		MimeMessage msg = javaMailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
-		helper.setTo(to);
-
-		String[] cc = ccList.split(",");
-
-		if (cc != null) {
-			for (String recipient : cc) {
-				msg.addRecipient(RecipientType.CC, new InternetAddress(recipient.replaceAll("\\s+", "")));
+		try {
+			MimeMessage msg = javaMailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+			helper.setTo(to);
+			helper.setSubject(subject);
+			helper.setText(text, true);
+			if (attachmentFilename != null && !attachmentFilename.isEmpty() && file != null) {
+				helper.addAttachment(attachmentFilename, new ByteArrayResource(IOUtils.toByteArray(file)));
 			}
+			this.javaMailSender.send(msg);
+		} catch (Exception e) {
+			log.error("發生錯誤，寄信失敗", e);
+			throw new MailSendException("寄信失敗，觸發重試機制", e);
 		}
-		helper.setSubject(subject);
-		helper.setText(text, true);
-		this.javaMailSender.send(msg);
+	}
+
+	@Override
+	public void send(String to, String subject, String text, Map<String, InputStream> map) {
+		log.debug("send to: {}", to);
+		try {
+			MimeMessage msg = javaMailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+			helper.setTo(to);
+			helper.setSubject(subject);
+			helper.setText(text, true);
+
+			if (map != null && !map.isEmpty()) {
+				for (Map.Entry<String, InputStream> entry : map.entrySet()) {
+					helper.addAttachment(entry.getKey(), new ByteArrayResource(IOUtils.toByteArray(entry.getValue())));
+				}
+			}
+			this.javaMailSender.send(msg);
+		} catch (Exception e) {
+			log.error("發生錯誤，寄信失敗", e);
+			throw new MailSendException("寄信失敗，觸發重試機制", e);
+		}
+	}
+
+	@Override
+	public void sendAndCc(String to, String ccList, String subject, String text, Map<String, InputStream> map) {
+		log.debug("send to: {}", to);
+		try {
+			MimeMessage msg = javaMailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+			helper.setTo(to);
+
+			if (ccList != null) {
+				String[] cc = ccList.split(",");
+				for (String recipient : cc) {
+					msg.addRecipient(RecipientType.CC, new InternetAddress(recipient.replaceAll("\\s+", "")));
+				}
+			}
+			helper.setSubject(subject);
+			helper.setText(text, true);
+			
+			if (map != null && !map.isEmpty()) {
+				for (Map.Entry<String, InputStream> entry : map.entrySet()) {
+					helper.addAttachment(entry.getKey(), new ByteArrayResource(IOUtils.toByteArray(entry.getValue())));
+				}
+			}
+			this.javaMailSender.send(msg);
+		} catch (Exception e) {
+			log.error("發生錯誤，寄信失敗", e);
+			throw new MailSendException("寄信失敗，觸發重試機制", e);
+		}
 	}
 }

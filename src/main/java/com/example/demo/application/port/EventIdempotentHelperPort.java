@@ -1,6 +1,6 @@
 package com.example.demo.application.port;
 
-import com.example.demo.infra.event.shared.event.BaseEvent;
+import com.example.demo.application.shared.event.BaseEvent;
 
 /**
  * 事件冪等處理輔助介面（Event Idempotent Helper Port）。

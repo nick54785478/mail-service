@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.application.port.EventTopicResolverPort;
-import com.example.demo.infra.event.shared.event.BaseEvent;
+import com.example.demo.application.shared.event.BaseEvent;
 
 import lombok.RequiredArgsConstructor;
 

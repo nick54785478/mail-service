@@ -1,6 +1,6 @@
 package com.example.demo.application.port;
 
-import com.example.demo.infra.event.shared.event.BaseEvent;
+import com.example.demo.application.shared.event.BaseEvent;
 
 /**
  * 事件 Topic 解析介面（Event Topic Resolver Port）。

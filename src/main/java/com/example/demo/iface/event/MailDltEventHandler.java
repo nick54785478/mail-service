@@ -47,11 +47,11 @@ public class MailDltEventHandler {
 			String alertContent = mailTemplateGenerator.generateStandardHtmlContent("email", "dlt_alert.html", params);
 
 			// 2. 封裝發信命令 (繞過 Outbox，直接呼叫寄信)
-			SendMailCommand command = SendMailCommand.builder()
-					.email(alertEmail)
-					.subject("【系統告警】死信佇列 (DLT) 觸發通知")
-					.content(alertContent)
-					.build();
+			SendMailCommand command = new SendMailCommand(
+					alertEmail,
+					"【系統告警】死信佇列 (DLT) 觸發通知",
+					alertContent
+			);
 
 			// 3. 呼叫 Application Service (內部會自動再包一層 base_layout.html 後寄出)
 			applicationService.sendMail(command);

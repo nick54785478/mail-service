@@ -2,7 +2,7 @@ package com.example.demo.application.port;
 
 import java.util.List;
 
-import com.example.demo.infra.event.shared.command.PublishEventCommand;
+import com.example.demo.application.shared.command.PublishEventCommand;
 
 /**
  * 事件發布介面（Event Publisher Port）。
@@ -24,13 +24,23 @@ public interface EventPublisherPort {
 	 *
 	 * @param command 發布事件所需的資訊，包含：
 	 *                <ul>
-	 *                <li>{@link PublishEventCommand#getTopic()} 事件所屬的 Topic 名稱</li>
-	 *                <li>{@link PublishEventCommand#getPartitionIndex()}
+	 *                <li>{@link PublishEventCommand#topic()} 事件所屬的 Topic 名稱</li>
+	 *                <li>{@link PublishEventCommand#partitionIndex()}
 	 *                可選，指定分區索引</li>
-	 *                <li>{@link PublishEventCommand#getEvent()} JSON 字串形式的事件資料</li>
+	 *                <li>{@link PublishEventCommand#event()} JSON 字串形式的事件資料</li>
 	 *                </ul>
 	 */
 	void publish(PublishEventCommand command);
 
-	void republish(List<PublishEventCommand> commands);
+	/**
+	 * 批次發布事件。
+	 *
+	 * <pre>
+	 * 將多筆事件資料一次性或依序發送到消息系統。
+	 * 此方法通常用於 Outbox 轉發排程等需要批次處理的場景，以減少呼叫次數或優化效能。
+	 * </pre>
+	 *
+	 * @param commands 欲發布的事件資訊列表
+	 */
+	void publish(List<PublishEventCommand> commands);
 }

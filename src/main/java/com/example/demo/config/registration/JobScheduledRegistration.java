@@ -81,8 +81,8 @@ public class JobScheduledRegistration {
 	private void registerJob(String jobName, String groupName, String cronExpression, Class<? extends Job> jobClass)
 			throws SchedulerException {
 
-		RegisterScheduleJobCommand command = RegisterScheduleJobCommand.builder().jobName(jobName).groupName(groupName)
-				.cronExpression(cronExpression).jobClass(jobClass).build();
+		RegisterScheduleJobCommand command = new RegisterScheduleJobCommand(
+				jobName, groupName, cronExpression, jobClass);
 
 		scheduleRegisterFactory.register(command);
 	}

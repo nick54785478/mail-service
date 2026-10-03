@@ -20,6 +20,8 @@ public interface OutboxMessageRepository extends JpaRepository<OutboxMessage, Lo
 
 	Optional<OutboxMessage> findByUuid(String uuid);
 
+	List<OutboxMessage> findAllByUuidIn(List<String> uuids);
+
 	List<OutboxMessage> findByStatusAndOccurredAtBefore(OutboxStatus status, Date time);
 
 	@Lock(LockModeType.PESSIMISTIC_WRITE)

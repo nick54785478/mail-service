@@ -2,22 +2,14 @@ package com.example.demo.infra.schedule.command;
 
 import org.quartz.Job;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class RegisterScheduleJobCommand {
-
-	private String jobName;
-	
-	private String groupName;
-	
-	private String cronExpression;
-	
-	private Class<? extends Job> jobClass;
-}
+/**
+ * 註冊排程 Job 的命令物件。
+ * 
+ * 封裝 Quartz 需要的參數，作為 Config/Infra 內部傳遞之用。
+ */
+public record RegisterScheduleJobCommand(
+	String jobName,
+	String groupName,
+	String cronExpression,
+	Class<? extends Job> jobClass
+) {}

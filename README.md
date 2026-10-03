@@ -31,11 +31,13 @@
 	Application Layer
 	│
 	├── MailApplicationService
+	├── OutboxRelayApplicationService
 	│
 	├── DistributeLockManagerPort
 	├── EventTopicResolverPort
 	├── EventPublisherPort
 	├── OutboxManagerPort
+	├── OutboxRelayPort
 	├── EventIdempotentHelperPort
 	├── MailSenderPort
 	├── MailTemplateGeneratorPort
@@ -46,6 +48,7 @@
 	├── EventTopicResolverAdapter
 	├── EventPublisherAdapter
 	├── OutboxManagerAdapter
+	├── OutboxRelayAdapter
 	├── EventIdemponentHelperAdapter
 	├── MailSenderAdapter
 	└── MailTemplateGeneratorAdapter
@@ -54,100 +57,55 @@
 ### Core Components
 
 
-**BaseEvent**
+**BaseEvent (介面)**
 
-所有事件皆需繼承：
+所有事件皆需實作此介面：
 
 	/**
-	 * Event 基礎實體類，此類包含一些通用的欄位，如: 訊息識別符、目標代碼。
+	 * Event 基礎介面。
 	 * */
-	@Data
-	@SuperBuilder
-	@MappedSuperclass
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public class BaseEvent {
-	
-	    /**
-	     * 消息的唯一識別符
-	     */
-	    protected String outboxMessageUuid;
-	
-	    /**
-	     * targetId
-	     */
-	    protected String targetId;
-	
+	public interface BaseEvent {
+	    String outboxMessageUuid();
+	    String targetId();
 	}
 
+具體的事件則採用 Java 14 的 `record` 實作，確保不可變 (Immutable) 與架構純粹性：
+
+	public record MailSendRequestedEvent(
+		String email,
+		String subject,
+		String content,
+		String targetId,
+		String outboxMessageUuid
+	) implements BaseEvent {}
 
 **用途：**
 
 * 統一事件結構
-
-* 支援多型 JSON 序列化
-
-* 作為事件體系的核心抽象
+* 支援多型 JSON 序列化 (藉由 MixIn 機制處理)
+* 透過 Record 確保 Immutable 特性，消除對 Lombok 與 Jackson 標註的依賴，貫徹 Clean Architecture
 
 ---
 
-** @EventBinding **
+**EventMessageConfiguration (事件註冊設定)**
 
+取代了過去依賴 Reflection 掃描自定義標註 `@EventBinding` 的方式，現在改用顯式的註冊：
 
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface EventBinding {
-	
-		/**
-		 * 事件綁定 key，用於識別事件類型。
-		 *
-		 * @return 事件 binding key，例如 {@code "send-mail"}
-		 */
-		String value();
+	@Configuration
+	public class EventMessageConfiguration {
+		@Bean("eventTopicMapping")
+		public Map<Class<? extends BaseEvent>, String> eventTopicMapping(TopicProperties topicProperties) {
+			Map<Class<? extends BaseEvent>, String> mapping = new HashMap<>();
+			mapping.put(MailSendRequestedEvent.class, topicProperties.getSendMail());
+			return mapping;
+		}
 	}
 
-在 BaseEvent 的子類標註
-
-	@EventBinding("send-mail")
-	public class MailSendRequestedEvent extends BaseEvent
-
 **用途：**
 
-* 定義事件對應的「業務識別 Key」
-
-* 系統啟動時用來建立事件 → Topic 映射
-
----
-
-
-**TopicProperties**
-
-對應設定檔
-
-	messaging.topics.send-mail=topic.send-mail
-	messaging.consumer-group.send-mail=group.send-mail
-
-**用途：**
-
-* 將事件 binding key 對應到實際消息 Topic
-
-* 不限定 MQ，可用於任何消息系統
-
----
-
-**EventMessageConfiguration**
-
-啟動時：
-
-* 掃描 event.package.path
-
-* 找出所有 @EventBinding
-
-* 與 TopicProperties 對應
-
-* 建立：
-
-	Map<Class<? extends BaseEvent>, String>
+* 定義事件對應的「業務識別 Key」與實際 Topic 的映射
+* 移除對 `org.reflections` 的依賴，提升啟動速度
+* 使 Application Layer 不再被基礎建設的特殊標註污染
 	
 ---
 
@@ -493,3 +451,4 @@ stateDiagram-v2
 >* SKIP LOCKED 高併發保障
 >* 歷史封存機制 (Archive-after-publish)
 >* 最終一致性保障
+>* OpenAPI (Swagger) 自動化 API 文件

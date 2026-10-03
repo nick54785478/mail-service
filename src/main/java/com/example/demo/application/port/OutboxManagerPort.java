@@ -1,6 +1,6 @@
 package com.example.demo.application.port;
 
-import com.example.demo.infra.event.shared.event.BaseEvent;
+import com.example.demo.application.shared.event.BaseEvent;
 
 /**
  * 事件日誌管理介面（Event Log Manager Port）。
