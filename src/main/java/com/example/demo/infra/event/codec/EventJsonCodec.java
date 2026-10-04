@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.application.shared.event.BaseEvent;
-import com.example.demo.infra.event.shared.mixin.BaseEventMixIn;
+import com.example.demo.infra.event.mixin.BaseEventMixIn;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;

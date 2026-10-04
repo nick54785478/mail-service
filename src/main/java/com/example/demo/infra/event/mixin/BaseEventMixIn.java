@@ -1,4 +1,4 @@
-package com.example.demo.infra.event.shared.mixin;
+package com.example.demo.infra.event.mixin;
 
 import com.example.demo.infra.event.codec.EventJsonCodec;
 import com.example.demo.application.shared.event.BaseEvent;
